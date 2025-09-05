@@ -1,0 +1,9 @@
+OUTPUT_DIR := $(PWD)/output
+KERNEL_DIR := $(OUTPUT_DIR)/kernel
+UBOOT_DIR := $(OUTPUT_DIR)/u-boot
+TRUSTED_FIRMWARE_DIR := $(OUTPUT_DIR)/trusted-firmware
+ARCH := arm64
+TOOLCHAIN := DEB
+CC := aarch64-poky-linux-
+CPUS := $(shell getconf _NPROCESSORS_ONLN)
+PLATFORM := rzt2h-evk
