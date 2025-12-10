@@ -40,6 +40,10 @@ apt -y full-upgrade && apt -y autoclean && apt -y autoremove
 apt -y install openssh-server iw wpasupplicant hostapd util-linux procps iproute2 haveged dnsmasq iptables net-tools ppp ntp ntpdate bridge-utils can-utils v4l-utils usbutils
 apt -y install bash-completion ifupdown resolvconf alsa-utils gpiod cloud-utils udhcpc feh modemmanager software-properties-common bluez blueman gpiod
 
+# ensure LXQt can start correctly after relogin
+echo 'export XDG_RUNTIME_DIR=/run/user/$(id -u)' >> /home/ubuntu/.profile
+chown ubuntu:ubuntu /home/ubuntu/.profile
+
 # for teamviewer and anydesk
 apt -y install libpolkit-gobject-1-0:armhf libraspberrypi0:armhf libraspberrypi-dev:armhf libraspberrypi-bin:armhf libgles-dev:armhf libegl-dev:armhf
 apt -y install libegl1-mesa libgail-common libgail18 libgtk2.0-0 libgtk2.0-bin libgtk2.0-common libpango1.0-0
@@ -55,9 +59,19 @@ if [[ "$LANGUAGE" == "zh-hant" ]]; then
 	locale-gen zh_TW.UTF-8
 	update-locale LANG=zh_TW.UTF-8
 elif [[ "$LANGUAGE" == "japanese" ]]; then
-	apt -y install language-pack-ja language-pack-gnome-ja fonts-noto-cjk fonts-takao
-	locale-gen ja_JP.UTF-8
-	update-locale LANG=ja_JP.UTF-8
+        apt -y install language-pack-ja language-pack-gnome-ja fonts-noto-cjk fonts-takao
+        locale-gen ja_JP.UTF-8
+        update-locale LANG=ja_JP.UTF-8
+        style_file="/usr/share/fluxbox/styles/ubuntu-light"
+        if [ -f "$style_file" ]; then
+          sed -i 's/^menu.frame.font:.*/menu.frame.font:                                Noto Sans CJK JP-10:bold/' "$style_file"
+          sed -i 's/^menu.title.font:.*/menu.title.font:                                Noto Sans CJK JP-12:bold/' "$style_file"
+          sed -i 's/^toolbar.clock.font:.*/toolbar.clock.font:                             Noto Sans CJK JP-10:bold/' "$style_file"
+          sed -i 's/^toolbar.workspace.font:.*/toolbar.workspace.font:                         Noto Sans CJK JP-12:bold/' "$style_file"
+          sed -i 's/^toolbar.iconbar.focused.font:.*/toolbar.iconbar.focused.font:                   Noto Sans CJK JP-10:bold/' "$style_file"
+          sed -i 's/^toolbar.iconbar.unfocused.font:.*/toolbar.iconbar.unfocused.font:                 Noto Sans CJK JP-10/' "$style_file"
+          sed -i 's/^window.font:.*/window.font:                                    Noto Sans CJK JP-10:bold/' "$style_file"
+        fi
 elif [[ "$LANGUAGE" == "korean" ]]; then
     apt -y install language-pack-ko language-pack-gnome-ko fonts-noto-cjk fonts-unfonts-core
     locale-gen ko_KR.UTF-8
@@ -67,29 +81,16 @@ fi
 # enable required repositories for ROS2
 apt -y install software-properties-common
 add-apt-repository universe
-apt -y update
 apt -y install curl
 export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}')
 curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb"
-sudo dpkg -i /tmp/ros2-apt-source.deb
-apt -y install ros-dev-tools
+dpkg -i /tmp/ros2-apt-source.deb
+apt -y update
+apt -y upgrade
 apt -y install ros-rolling-desktop
-apt -y install ros-rolling-ros-base
 
-
-# X11 setting
-cat <<END > /etc/X11/xorg.conf
-Section "Device"
-Identifier  "Framebuffer Device"
-Driver      "fbdev"
-Option      "fbdev"   "/dev/fb0"
-EndSection
-
-Section "Screen"
-Identifier "Screen0"
-Device     "Framebuffer Device"
-EndSection
-END
+# remove QT Designer to reduce footprint
+apt -y purge qttools5-dev-tools qtcreator || true
 
 # audio setting
 cat <<END > /home/ubuntu/.asoundrc
@@ -118,6 +119,11 @@ apt-get update && echo "slim shared/default-x-display-manager select slim" | deb
 # auto login
 sed -i 's/#auto_login\s\+no/auto_login          yes/' /etc/slim.conf
 sed -i 's/#default_user\s\+simone/default_user        ubuntu/' /etc/slim.conf
+if grep -q '^xserver_arguments' /etc/slim.conf; then
+    sed -i 's/^xserver_arguments.*/xserver_arguments   -nolisten tcp -layout us -dpms -s off/' /etc/slim.conf
+else
+    echo 'xserver_arguments   -nolisten tcp -layout us -dpms -s off' >> /etc/slim.conf
+fi
 
 wget https://ubuntucommunity.s3.us-east-2.amazonaws.com/original/3X/6/3/63c50fde4f2fe64d161e43f4d7588049a208b524.jpeg
 mv 63c50fde4f2fe64d161e43f4d7588049a208b524.jpeg /home/ubuntu/wallpaper.jpeg
