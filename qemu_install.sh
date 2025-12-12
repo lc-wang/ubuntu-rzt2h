@@ -96,6 +96,9 @@ apt -y install colcon
 # make sure no other display managers are installed or left behind
 apt -y purge sddm gdm3 lightdm || true
 
+# remove QT Designer to reduce footprint
+apt -y purge qttools5-dev-tools qtcreator || true
+
 # X11 setting
 cat <<END > /etc/X11/xorg.conf
 Section "Device"
