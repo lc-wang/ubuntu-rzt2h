@@ -140,6 +140,11 @@ apt-get update && echo "slim shared/default-x-display-manager select slim" | deb
 # auto login
 sed -i 's/#auto_login\s\+no/auto_login          yes/' /etc/slim.conf
 sed -i 's/#default_user\s\+simone/default_user        ubuntu/' /etc/slim.conf
+if grep -q '^xserver_arguments' /etc/slim.conf; then
+    sed -i 's/^xserver_arguments.*/xserver_arguments   -nolisten tcp -layout us -dpms -s off/' /etc/slim.conf
+else
+    echo 'xserver_arguments   -nolisten tcp -layout us -dpms -s off' >> /etc/slim.conf
+fi
 
 wget https://ubuntucommunity.s3.us-east-2.amazonaws.com/original/3X/6/3/63c50fde4f2fe64d161e43f4d7588049a208b524.jpeg
 mv 63c50fde4f2fe64d161e43f4d7588049a208b524.jpeg /home/ubuntu/wallpaper.jpeg
