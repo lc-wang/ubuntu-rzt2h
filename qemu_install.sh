@@ -14,8 +14,6 @@ echo "${COL_GREEN}creating ubuntu sudoer account...${COL_NORMAL}"
 cd /
 echo $PLATFORM > /etc/hostname
 echo -e "127.0.1.1\t $PLATFORM" >> /etc/hosts
-echo -e "nameserver\t8.8.8.8" >> /etc/resolv.conf
-echo -e "nameserver\t8.8.4.4" >> /etc/resolv.conf
 
 (echo "root"; echo "root";) | passwd
 (echo "ubuntu"; echo "ubuntu"; echo;) | adduser ubuntu
@@ -195,6 +193,39 @@ cat <<END > /home/ubuntu/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 END
 
 yes "Y" | apt install --reinstall network-manager-gnome
+
+# 1. Kill systemd-resolved
+systemctl stop systemd-resolved.service || true
+systemctl disable systemd-resolved.service || true
+systemctl mask systemd-resolved.service || true
+
+# 2. Make sure it is really masked
+if systemctl list-unit-files | grep -q '^systemd-resolved.service.*masked'; then
+    echo "systemd-resolved successfully masked"
+else
+    echo "ERROR: systemd-resolved NOT masked"
+    systemctl status systemd-resolved || true
+fi
+
+# 3. Force remove resolv.conf
+rm -f /etc/resolv.conf
+
+# 4. Create static resolv.conf
+cat <<EOF > /etc/resolv.conf
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+EOF
+
+chmod 644 /etc/resolv.conf
+
+# 5. Prevent NetworkManager from touching DNS
+mkdir -p /etc/NetworkManager/conf.d
+cat <<EOF > /etc/NetworkManager/conf.d/99-no-dns.conf
+[main]
+dns=none
+EOF
+
+systemctl restart NetworkManager || true
 
 # let network-manager handle all network interfaces
 touch /etc/NetworkManager/conf.d/10-globally-managed-devices.conf
