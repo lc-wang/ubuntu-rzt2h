@@ -136,7 +136,7 @@ elif [[ "$DISTRO" == "noble" ]]; then
 fi
 
 apt -y install fluxbox onboard xterm xfce4-screenshooter rfkill alsa-utils minicom strace
-apt-get update && echo "slim shared/default-x-display-manager select slim" | debconf-set-selections && DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -y install slim && echo "/usr/bin/slim" | tee /etc/X11/default-display-manager
+apt-get update && echo "slim shared/default-x-display-manager select slim" | debconf-set-selections && DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -y install slim && echo "/usr/bin/slim" | tee /etc/X11/default-display-manager && ln -sf /lib/systemd/system/slim.service /etc/systemd/system/display-manager.service
 # auto login
 sed -i 's/#auto_login\s\+no/auto_login          yes/' /etc/slim.conf
 sed -i 's/#default_user\s\+simone/default_user        ubuntu/' /etc/slim.conf
