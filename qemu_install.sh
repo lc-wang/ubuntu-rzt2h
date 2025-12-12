@@ -48,6 +48,10 @@ apt -y install libegl1-mesa libgail-common libgail18 libgtk2.0-0 libgtk2.0-bin l
 add-apt-repository ppa:xtradeb/apps -y
 apt -y install chromium
 
+# ensure LXQt can start correctly after relogin
+echo 'export XDG_RUNTIME_DIR=/run/user/$(id -u)' >> /home/ubuntu/.profile
+chown ubuntu:ubuntu /home/ubuntu/.profile
+
 # for multiple languages
 apt -y install language-selector-gnome
 if [[ "$LANGUAGE" == "zh-hant" ]]; then
