@@ -90,6 +90,8 @@ apt -y update
 apt -y upgrade
 apt -y install ros-rolling-ros-base
 
+# for build ROS2
+apt -y install colcon
 
 # X11 setting
 cat <<END > /etc/X11/xorg.conf
