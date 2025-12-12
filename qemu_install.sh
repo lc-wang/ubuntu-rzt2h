@@ -62,6 +62,16 @@ elif [[ "$LANGUAGE" == "japanese" ]]; then
 	apt -y install language-pack-ja language-pack-gnome-ja fonts-noto-cjk fonts-takao
 	locale-gen ja_JP.UTF-8
 	update-locale LANG=ja_JP.UTF-8
+	style_file="/usr/share/fluxbox/styles/ubuntu-light"
+	if [ -f "$style_file" ]; then
+		sed -i 's/^menu.frame.font:.*/menu.frame.font: Noto Sans CJK JP-10:bold/' "$style_file"
+		sed -i 's/^menu.title.font:.*/menu.title.font: Noto Sans CJK JP-12:bold/' "$style_file"
+		sed -i 's/^toolbar.clock.font:.*/toolbar.clock.font: Noto Sans CJK JP-10:bold/' "$style_file"
+		sed -i 's/^toolbar.workspace.font:.*/toolbar.workspace.font: Noto Sans CJK JP-12:bold/' "$style_file"
+		sed -i 's/^toolbar.iconbar.focused.font:.*/toolbar.iconbar.focused.font: Noto Sans CJK JP-10:bold/' "$style_file"
+		sed -i 's/^toolbar.iconbar.unfocused.font:.*/toolbar.iconbar.unfocused.font: Noto Sans CJK JP-10/' "$style_file"
+		sed -i 's/^window.font:.*/window.font: Noto Sans CJK JP-10:bold/' "$style_file"
+	fi
 elif [[ "$LANGUAGE" == "korean" ]]; then
     apt -y install language-pack-ko language-pack-gnome-ko fonts-noto-cjk fonts-unfonts-core
     locale-gen ko_KR.UTF-8
