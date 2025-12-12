@@ -99,20 +99,6 @@ apt -y purge sddm gdm3 lightdm || true
 # remove QT Designer to reduce footprint
 apt -y purge qttools5-dev-tools qtcreator || true
 
-# X11 setting
-cat <<END > /etc/X11/xorg.conf
-Section "Device"
-Identifier  "Framebuffer Device"
-Driver      "fbdev"
-Option      "fbdev"   "/dev/fb0"
-EndSection
-
-Section "Screen"
-Identifier "Screen0"
-Device     "Framebuffer Device"
-EndSection
-END
-
 # audio setting
 cat <<END > /home/ubuntu/.asoundrc
 pcm.!default {
