@@ -93,6 +93,9 @@ apt -y install ros-rolling-ros-base
 # for build ROS2
 apt -y install colcon
 
+# make sure no other display managers are installed or left behind
+apt -y purge sddm gdm3 lightdm || true
+
 # X11 setting
 cat <<END > /etc/X11/xorg.conf
 Section "Device"
